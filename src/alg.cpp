@@ -43,7 +43,6 @@ std::string infx2pstfx(std::string inf) {
     }
     return postfix;
 }
- 
 int eval(std::string post) {
     TStack<int, 100> stack;
     std::string Number;
