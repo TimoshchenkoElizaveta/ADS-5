@@ -3,91 +3,80 @@
 #include <map>
 #include "tstack.h"
 
-bool operation(char iChar) {
-    return (iChar == '*' || iChar == '/' || iChar == '-' || iChar == '+');
-}
-int priority(char iOper) {
-    if (iOper == '*' || iOper == '/') return 2;
-    if (iOper == '+' || iOper == '-') return 1;
+int GetPrior(char operand) {
+    if (operand == '+' || operand == '-') return 1;
+    if (operand == '*' || operand == '/') return 2;
     return 0;
 }
+bool ProverkaNaOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/');
+}
+
 std::string infx2pstfx(std::string inf) {
-    std::string postf;
-    TStack<char, 100> stack1;
-    for (int i = 0; i < inf.size(); i++) {
-        char iChar = inf[i];
-        if (isdigit(iChar)) {
-            int operand = 0;
-            while (i < inf.size() && isdigit(inf[i])) {
-                operand = operand * 10 + (inf[i] - '0');
-                i++;
+    std::string postfix;
+    TStack<char, 100> stack;
+    for (char c : inf) {
+        if (isdigit(c)) {
+            postfix = postfix + c + ' ';
+        } else if (c == '(') {
+            stack.push(c);
+        } else if (ProverkaNaOperator(c)) {
+            while (!stack.isEmpty() && GetPrior(stack.get()) >= GetPrior(c)) {
+                postfix = postfix + stack.get() + ' ';
+                stack.pop();
             }
-            i--;
-            postf += std::to_string(operand) + " ";
-        }
-        else if (isalpha(iChar)) {
-            postf += iChar;
-            postf += " ";
-        }
-        else if (iChar == '(') {
-            stack1.push(iChar);
-        }
-        else if (iChar == ')') {
-            while (!stack1.isEmpty() && stack1.watch() != '(') {
-                postf += stack1.pop();
-                postf += ' ';
+            stack.push(c);
+        } else if (c == ')') {
+            while (!stack.isEmpty() && stack.get() != '(') {
+                postfix = postfix + stack.get() + ' ';
+                stack.pop();
             }
-            if (!stack1.isEmpty() && stack1.watch() == '(') {
-                stack1.pop();
-            }
-        }
-        else if (operation(iChar)) {
-            while (!stack1.isEmpty() &&
-                priority(stack1.watch()) >= priority(iChar)) {
-                postf += stack1.pop();
-                postf += ' ';
-            }
-            stack1.push(iChar);
+            stack.pop();
         }
     }
-    while (!stack1.isEmpty()) {
-        postf += stack1.pop();
-        postf += ' ';
+    while (!stack.isEmpty()) {
+        postfix = postfix + stack.get() + ' ';
+        stack.pop();
     }
-    if (!postf.empty()) {
-        postf.pop_back();
+    if (!postfix.empty()) {
+        postfix.pop_back();
     }
-    return postf;
+    return postfix;
 }
  
 int eval(std::string post) {
-    TStack<int, 100> stack2;
-    for (int i = 0; i < pref.size(); i++) {
-        if (isdigit(pref[i])) {
-            int operand = 0;
-            while (i < pref.size() && isdigit(pref[i])) {
-                operand = operand * 10 + (pref[i] - '0');
-                i++;
-            }
-            i--;
-            stack2.push(operand);
+    TStack<int, 100> stack;
+    std::string Number;
+    for (char c : post) {
+        if (isdigit(c)) {
+            Number += c;
+        } else if (Number != "") {
+            stack.push(std::atoi(Number.c_str()));
+            Number = "";
         }
-        else if (operation(pref[i])) {
-            int iOper2 = stack2.pop();
-            int iOper1 = stack2.pop();
-            if (pref[i] == '+') {
-                stack2.push(iOper1 + iOper2);
-            }
-            else if (pref[i] == '-') {
-                stack2.push(iOper1 - iOper2);
-            }
-            else if (pref[i] == '*') {
-                stack2.push(iOper1 * iOper2);
-            }
-            else if (pref[i] == '/') {
-                stack2.push(iOper1 / iOper2);
+        if (ProverkaNaOperator(c)) {
+            int op2 = stack.get();
+            stack.pop();
+            int op1 = stack.get();
+            stack.pop();
+            switch (c) {
+                case '+':
+                    stack.push(op1 + op2);
+                    break;
+                case '-':
+                    stack.push(op1 - op2);
+                    break;
+                case '*':
+                    stack.push(op1 * op2);
+                    break;
+                case '/':
+                    stack.push(op1 / op2);
+                    break;
             }
         }
     }
-    return stack2.pop();
+    if (Number != "") {
+        stack.push(std::atoi(Number.c_str()));
+    }
+    return stack.get();
 }
