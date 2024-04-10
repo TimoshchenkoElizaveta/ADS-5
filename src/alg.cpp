@@ -10,8 +10,8 @@ std::string infx2pstfx(std::string inf) {
         if (c >= '0' && c <= '9') {
             post += c;
         } else if (c == '+' || c == '-' || c == '*' || c == '/') {
-            while (!stack.isEmpty() && 
-                ((stack.peek() == '*' || stack.peek() == '/') && 
+            while (!stack.isEmpty() &&
+                ((stack.peek() == '*' || stack.peek() == '/') &&
                 (c == '+' || c == '-'))) {
                 post += stack.pop();
             }
