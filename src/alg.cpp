@@ -4,16 +4,23 @@
 #include "tstack.h"
 
 std::string infx2pstfx(std::string inf) {
-    std::string post;
     TStack<char, 100> stack;
-    for (char &c : inf) {
-        if (c >= '0' && c <= '9') {
+    std::string post = "";
+    for (char& c : inf) {
+        if (isdigit(c)) {
             post += c;
-        } else if (c == '+' || c == '-' || c == '*' || c == '/') {
-            while (!stack.isEmpty() && (stack.peek() == ' ' || stack.peek() == '/')) {
-                while (!stack.isEmpty() && (c == '+' || c == '-')) {
-                    post += stack.pop();
-                }
+            continue;
+        }
+        if (c == '(') {
+            stack.push(c);
+        } else if (c == ')') {
+            while (!stack.isEmpty() && stack.get() != '(') {
+                post += stack.pop();
+            }
+            stack.pop();
+        } else if (isOperator(c)) {
+            while (!stack.isEmpty() && getPriority(c) <= getPriority(stack.get())) {
+                post += stack.pop();
             }
             stack.push(c);
         }
@@ -24,7 +31,7 @@ std::string infx2pstfx(std::string inf) {
     return post;
 }
 
-int eval(std::string pref) {
+int eval(std::string post) {
 TStack<int, 100> stack;
     for (char &c : post) {
         if (c >= '0' && c <= '9') {
