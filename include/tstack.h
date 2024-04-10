@@ -5,28 +5,36 @@
 template<typename T, int size>
 class TStack {
  private:
-    T *stack;
+    T* data;
     int top;
  public:
-    TStack() {
-        stack = new T[size];
-        top = -1;
+    TStack() : top(-1) {
+        data = new T[size];
     }
     ~TStack() {
-        delete [] stack;
+        delete[] data;
     }
-    void push(T data) {
-        stack[++top] = data;
-    }
-    T pop() {
-        return stack[top--];
-    }
-    T peek() {
-        return stack[top];
-    }
-    bool isEmpty() {
-        return top == -1;
-    }
+        void push(T value) {
+            if (top == size - 1) {
+                throw std::string("Overflow");
+            }
+            data[++top] = value;
+        }
+        T pop() {
+            if (top == -1) {
+                throw std::string("Underflow");
+            }
+            return data[top--];
+        }
+        bool isEmpty() {
+            return top == -1;
+        }
+        T watch() {
+            if (top < 0) {
+                throw std::string("Underflow");
+            }
+            return data[top];
+        }
 };
 
 #endif  // INCLUDE_TSTACK_H_
